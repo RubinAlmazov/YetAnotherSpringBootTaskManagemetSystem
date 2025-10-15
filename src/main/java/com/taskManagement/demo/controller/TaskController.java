@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import com.taskManagement.demo.service.TaskService;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 
 @RestController
@@ -25,34 +26,80 @@ public class TaskController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Task> getTask(@PathVariable Long id) {
-        log.info("get task by id={}", id);
-        return ResponseEntity.status(HttpStatus.OK).body(taskService.getTaskByID(id));
+        log.info("getting task by id={}", id);
+        try {
+            Task task = taskService.getTaskByID(id);
+            log.info("task successfully received by id={}", id);
+            return ResponseEntity.ok(task);
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(null);
+        }
+
     }
 
     @GetMapping
     public ResponseEntity<List<Task>> getAllTasks() {
-        log.info("get all tasks");
-        return ResponseEntity.status(HttpStatus.OK).body(taskService.getAllTasks());
+        log.info("getting all tasks");
+        try {
+            List<Task> tasks = taskService.getAllTasks();
+            log.info("all tasks successfully received");
+            return ResponseEntity.ok(tasks);
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(null);
+        }
+
     }
 
     @PostMapping
     public ResponseEntity<Task> createTask(@RequestBody Task taskToCreate) {
-        log.info("crete new task");
-        return ResponseEntity.status(HttpStatus.OK).body(taskService.createTask(taskToCreate));
+        log.info("creating new task");
+        try {
+            Task task = taskService.createTask(taskToCreate);
+            log.info("successfully created new task");
+            return ResponseEntity.ok(task);
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(null);
+        }
 
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Task> updateTask(@PathVariable Long id, @RequestBody Task taskToUpdate) {
-        log.info("update task id={}", id);
-        return ResponseEntity.status(HttpStatus.OK).body(taskService.updateTask(id, taskToUpdate));
+        log.info("updating task by id={}", id);
+        try {
+            Task task = taskService.updateTask(id, taskToUpdate);
+            log.info("successfully update task by id={}", id);
+            return ResponseEntity.ok(task);
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(null);
+        }
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
-        log.info("delete task id={}", id);
-        taskService.deleteTask(id);
-        return ResponseEntity.status(HttpStatus.OK).build();
+        log.info("deleting task by id={}", id);
+        try {
+            taskService.deleteTask(id);
+            log.info("successfully delete task by id={}", id);
+            return ResponseEntity.ok(null);
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(null);
+        }
     }
 }
 
