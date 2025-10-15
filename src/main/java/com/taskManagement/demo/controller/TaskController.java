@@ -3,10 +3,9 @@ package com.taskManagement.demo.controller;
 import com.taskManagement.demo.Task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import com.taskManagement.demo.service.TaskService;
 
 import java.util.List;
@@ -25,14 +24,35 @@ public class TaskController {
     }
 
     @GetMapping("/{id}")
-    public Task getTask(@PathVariable Long id) {
+    public ResponseEntity<Task> getTask(@PathVariable Long id) {
         log.info("get task by id={}", id);
-        return taskService.getTaskByID(id);
+        return ResponseEntity.status(HttpStatus.OK).body(taskService.getTaskByID(id));
     }
 
     @GetMapping
-    public List<Task> getAllTask() {
+    public ResponseEntity<List<Task>> getAllTasks() {
         log.info("get all tasks");
-        return taskService.getAllTasks();
+        return ResponseEntity.status(HttpStatus.OK).body(taskService.getAllTasks());
+    }
+
+    @PostMapping
+    public ResponseEntity<Task> createTask(@RequestBody Task taskToCreate) {
+        log.info("crete new task");
+        return ResponseEntity.status(HttpStatus.OK).body(taskService.createTask(taskToCreate));
+
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Task> updateTask(@PathVariable Long id, @RequestBody Task taskToUpdate) {
+        log.info("update task id={}", id);
+        return ResponseEntity.status(HttpStatus.OK).body(taskService.updateTask(id, taskToUpdate));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
+        log.info("delete task id={}", id);
+        taskService.deleteTask(id);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 }
+

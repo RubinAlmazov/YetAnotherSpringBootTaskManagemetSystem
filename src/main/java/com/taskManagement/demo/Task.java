@@ -5,13 +5,13 @@ import java.time.LocalDateTime;
 public record Task (
         Long id,
 
-        Long craterId,
+        Long creatorId,
 
         Long assignedUserId,
 
         TaskStatus status,
 
-        LocalDateTime craeteDateTime,
+        LocalDateTime createDateTime,
 
         LocalDateTime deadlineDate,
 
