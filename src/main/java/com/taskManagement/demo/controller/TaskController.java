@@ -59,62 +59,48 @@ public class TaskController {
     @PostMapping
     public ResponseEntity<Task> createTask(@RequestBody Task taskToCreate) {
         log.info("creating new task");
-        try {
-            Task task = taskService.createTask(taskToCreate);
-            log.info("successfully created new task");
-            return ResponseEntity.ok(task);
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(null);
-        }
+        Task task = taskService.createTask(taskToCreate);
+        log.info("successfully created new task");
+        return ResponseEntity.ok(task);
+
+
 
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Task> updateTask(@PathVariable Long id, @RequestBody Task taskToUpdate) {
         log.info("updating task by id={}", id);
-        try {
-            Task task = taskService.updateTask(id, taskToUpdate);
-            log.info("successfully update task by id={}", id);
-            return ResponseEntity.ok(task);
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(null);
-        }
+        Task task = taskService.updateTask(id, taskToUpdate);
+        log.info("successfully update task by id={}", id);
+        return ResponseEntity.ok(task);
+
+
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
         log.info("deleting task by id={}", id);
-        try {
-            taskService.deleteTask(id);
-            log.info("successfully delete task by id={}", id);
-            return ResponseEntity.ok(null);
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(null);
-        }
+        taskService.deleteTask(id);
+        log.info("successfully delete task by id={}", id);
+        return ResponseEntity.ok(null);
     }
 
     @PostMapping("/{id}/start")
     public ResponseEntity<Task> startTask(@PathVariable Long id) {
         log.info("starting task by id={}",id);
-        try {
-            Task task = taskService.startTask(id);
-            log.info("successfully started task");
-            return ResponseEntity.ok(task);
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(null);
-        }
+        Task task = taskService.startTask(id);
+        log.info("successfully started task");
+        return ResponseEntity.ok(task);
     }
+
+    @PostMapping("/{id}/complete")
+    public ResponseEntity<Task> completeTask(@PathVariable Long id) {
+        log.info("completing task by id={}",id);
+        Task task = taskService.completeTask(id);
+        log.info("successfully completed task");
+        return ResponseEntity.ok(task);
+    }
+
+
 }
 

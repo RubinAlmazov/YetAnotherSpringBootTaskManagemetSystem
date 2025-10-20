@@ -1,4 +1,4 @@
-package com.taskManagement.demo.DAO;
+package com.taskManagement.demo.dao;
 
 import com.taskManagement.demo.model.TaskEntity;
 import org.springframework.data.jpa.repository.JpaRepository;

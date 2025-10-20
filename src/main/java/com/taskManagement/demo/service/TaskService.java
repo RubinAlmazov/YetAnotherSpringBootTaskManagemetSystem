@@ -1,11 +1,12 @@
 package com.taskManagement.demo.service;
 
 import com.taskManagement.demo.model.TaskEntity;
-import com.taskManagement.demo.DAO.TaskRepository;
+import com.taskManagement.demo.dao.TaskRepository;
 import com.taskManagement.demo.Task;
-import com.taskManagement.demo.TaskStatus;
+import com.taskManagement.demo.enums.TaskStatus;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -49,6 +50,7 @@ public class TaskService {
                 TaskStatus.CREATED,
                 taskToCreate.createDateTime(),
                 taskToCreate.deadlineDate(),
+                null,
                 taskToCreate.taskPriority()
 
         );
@@ -67,6 +69,7 @@ public class TaskService {
                 taskToUpdate.status(),
                 taskToUpdate.createDateTime(),
                 taskToUpdate.deadlineDate(),
+                null,
                 taskToUpdate.taskPriority()
         );
 
@@ -101,12 +104,30 @@ public class TaskService {
                 TaskStatus.IN_PROGRESS,
                 taskToStart.getCreateDateTime(),
                 taskToStart.getDeadlineDate(),
+                null,
                 taskToStart.getTaskPriority()
         );
 
         repository.save(update);
         return entityToTask(update);
 
+    }
+
+    public Task completeTask(Long id) {
+        TaskEntity taskToStart = repository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Not found task by id"));
+        var update = new TaskEntity(
+                taskToStart.getId(),
+                taskToStart.getCreatorId(),
+                taskToStart.getAssignedUserId(),
+                TaskStatus.IN_PROGRESS,
+                taskToStart.getCreateDateTime(),
+                taskToStart.getDeadlineDate(),
+                LocalDateTime.now(),
+                taskToStart.getTaskPriority()
+        );
+        repository.save(update);
+        return entityToTask(update);
     }
 
     public Task entityToTask(TaskEntity entity) {
@@ -117,6 +138,7 @@ public class TaskService {
                 entity.getStatus(),
                 entity.getCreateDateTime(),
                 entity.getDeadlineDate(),
+                LocalDateTime.now(),
                 entity.getTaskPriority()
         );
     }

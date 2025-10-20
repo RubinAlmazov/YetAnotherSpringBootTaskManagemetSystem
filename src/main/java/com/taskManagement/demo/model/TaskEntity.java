@@ -1,7 +1,7 @@
 package com.taskManagement.demo.model;
 
-import com.taskManagement.demo.TaskPriority;
-import com.taskManagement.demo.TaskStatus;
+import com.taskManagement.demo.enums.TaskPriority;
+import com.taskManagement.demo.enums.TaskStatus;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -24,26 +24,29 @@ public class TaskEntity {
     @Column(name = "status")
     private TaskStatus status;
 
-    @Column(name = "createDataTime")
+    @Column(name = "createDateTime")
     private LocalDateTime createDateTime;
 
     @Column(name = "deadlineDate")
     private LocalDateTime deadlineDate;
 
+    @Column(name = "doneDateTime")
+    private LocalDateTime doneDateTime;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "taskPriority")
     private TaskPriority taskPriority;
 
-    public TaskEntity() {
-    }
+    public TaskEntity() {}
 
-    public TaskEntity(Long id, Long creatorId, Long assignedUserId, TaskStatus status, LocalDateTime createDateTime, LocalDateTime deadlineDate, TaskPriority taskPriority) {
+    public TaskEntity(Long id, Long creatorId, Long assignedUserId, TaskStatus status, LocalDateTime createDateTime, LocalDateTime deadlineDate, LocalDateTime doneDateTime, TaskPriority taskPriority) {
         this.id = id;
         this.creatorId = creatorId;
         this.assignedUserId = assignedUserId;
         this.status = status;
         this.createDateTime = createDateTime;
         this.deadlineDate = deadlineDate;
+        this.doneDateTime = doneDateTime;
         this.taskPriority = taskPriority;
     }
 
@@ -93,6 +96,14 @@ public class TaskEntity {
 
     public void setDeadlineDate(LocalDateTime deadlineDate) {
         this.deadlineDate = deadlineDate;
+    }
+
+    public LocalDateTime getDoneDateTime() {
+        return doneDateTime;
+    }
+
+    public void setDoneDateTime(LocalDateTime doneDateTime) {
+        this.doneDateTime = doneDateTime;
     }
 
     public TaskPriority getTaskPriority() {
