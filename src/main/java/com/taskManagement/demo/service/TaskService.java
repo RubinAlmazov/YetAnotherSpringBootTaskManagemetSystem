@@ -1,38 +1,37 @@
 package com.taskManagement.demo.service;
 
+import com.taskManagement.demo.model.TaskEntity;
+import com.taskManagement.demo.DAO.TaskRepository;
 import com.taskManagement.demo.Task;
 import com.taskManagement.demo.TaskStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Service
 public class TaskService {
-    private final Map<Long, Task> store;
+    private final TaskRepository repository;
 
-    private final AtomicLong counter;
+    HashMap<Long, Task> store = new HashMap<>();
+    AtomicLong counter = new AtomicLong();
 
-    public TaskService() {
-        this.store = new HashMap<>();
-        this.counter = new AtomicLong();
+    public TaskService(TaskRepository repository) {
+        this.repository = repository;
     }
 
     public Task getTaskByID(Long id) {
-        if (!store.containsKey(id)) {
-            throw new RuntimeException("Id doesnt exist: " + id);
-        }
-        return store.get(id);
+        TaskEntity entity = repository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Not found task by id"));
+        return entityToTask(entity);
     }
 
     public List<Task> getAllTasks() {
-        if (store.isEmpty()) {
-            throw new NoSuchElementException("No one task exist");
-        }
-        return store.values().stream().toList();
+        List<TaskEntity> listOfEntities = repository.findAll();
+        return listOfEntities.stream().map(this::entityToTask).toList();
     }
 
     public Task createTask(Task taskToCreate) {
@@ -43,8 +42,8 @@ public class TaskService {
             throw new IllegalArgumentException("Status should be empty");
         }
 
-        var newTask = new Task(
-                counter.incrementAndGet(),
+        var newTask = new TaskEntity(
+                null,
                 taskToCreate.creatorId(),
                 taskToCreate.assignedUserId(),
                 TaskStatus.CREATED,
@@ -53,39 +52,72 @@ public class TaskService {
                 taskToCreate.taskPriority()
 
         );
-        store.put(newTask.id(), newTask);
-        return newTask;
+        repository.save(newTask);
+        return entityToTask(newTask);
     }
 
     public Task updateTask(Long id, Task taskToUpdate) {
-        if (!store.containsKey(id)) {
-            throw new NoSuchElementException("Id not found: " + id);
-        }
-        if (store.get(id).status() == TaskStatus.DONE) {
-            throw new IllegalArgumentException("Update doesnt available, task finished");
-        }
-        if (taskToUpdate.status() != null) {
-            throw new IllegalArgumentException("Status should be empty");
-        }
 
-        var update = new Task(
-                id,
+        TaskEntity entity = repository.findById(id)
+                .orElseThrow( () -> new NoSuchElementException("Not found task by id"));
+        var update = new TaskEntity(
+                entity.getId(),
                 taskToUpdate.creatorId(),
                 taskToUpdate.assignedUserId(),
-                TaskStatus.IN_PROGRESS,
+                taskToUpdate.status(),
                 taskToUpdate.createDateTime(),
                 taskToUpdate.deadlineDate(),
                 taskToUpdate.taskPriority()
         );
 
-        store.put(id, update );
-        return update;
+        var updatedTask = repository.save(update);
+        return entityToTask(updatedTask);
     }
 
     public void deleteTask(Long id) {
-        if (!store.containsKey(id)) {
+        if (!repository.existsById(id)) {
             throw new NoSuchElementException("Id doesnt exist: "  + id);
         }
-        store.remove(id);
+        repository.deleteById(id);
+    }
+
+    public Task startTask(Long id) {
+        if (!repository.existsById(id)) {
+            throw new NoSuchElementException("Id doesnt exist: "  + id);
+        }
+        long count = repository.findAllById(Collections.singleton(id)).stream().
+                filter(n -> n.getStatus().equals(TaskStatus.IN_PROGRESS)).count();
+        if (count > 4 ) {
+            throw new NoSuchElementException("Maximum number of tasks in progress");
+        }
+
+        TaskEntity taskToStart = repository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Not found task by id"));
+
+        var update = new TaskEntity(
+                taskToStart.getId(),
+                taskToStart.getCreatorId(),
+                taskToStart.getAssignedUserId(),
+                TaskStatus.IN_PROGRESS,
+                taskToStart.getCreateDateTime(),
+                taskToStart.getDeadlineDate(),
+                taskToStart.getTaskPriority()
+        );
+
+        repository.save(update);
+        return entityToTask(update);
+
+    }
+
+    public Task entityToTask(TaskEntity entity) {
+        return new Task(
+                entity.getId(),
+                entity.getCreatorId(),
+                entity.getAssignedUserId(),
+                entity.getStatus(),
+                entity.getCreateDateTime(),
+                entity.getDeadlineDate(),
+                entity.getTaskPriority()
+        );
     }
 }

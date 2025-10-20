@@ -101,5 +101,20 @@ public class TaskController {
                     .body(null);
         }
     }
+
+    @PostMapping("/{id}/start")
+    public ResponseEntity<Task> startTask(@PathVariable Long id) {
+        log.info("starting task by id={}",id);
+        try {
+            Task task = taskService.startTask(id);
+            log.info("successfully started task");
+            return ResponseEntity.ok(task);
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(null);
+        }
+    }
 }
 
