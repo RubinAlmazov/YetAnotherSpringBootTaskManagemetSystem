@@ -4,21 +4,18 @@ import com.taskManagement.demo.model.TaskEntity;
 import com.taskManagement.demo.dao.TaskRepository;
 import com.taskManagement.demo.Task;
 import com.taskManagement.demo.enums.TaskStatus;
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.concurrent.atomic.AtomicLong;
 
 @Service
 public class TaskService {
     private final TaskRepository repository;
 
-    HashMap<Long, Task> store = new HashMap<>();
-    AtomicLong counter = new AtomicLong();
 
     public TaskService(TaskRepository repository) {
         this.repository = repository;
@@ -35,7 +32,7 @@ public class TaskService {
         return listOfEntities.stream().map(this::entityToTask).toList();
     }
 
-    public Task createTask(Task taskToCreate) {
+    public Task createTask(@Valid Task taskToCreate) {
         if (taskToCreate.id() != null) {
             throw new IllegalArgumentException("Id should be empty");
         }
@@ -58,7 +55,7 @@ public class TaskService {
         return entityToTask(newTask);
     }
 
-    public Task updateTask(Long id, Task taskToUpdate) {
+    public Task updateTask(Long id, @Valid Task taskToUpdate) {
 
         TaskEntity entity = repository.findById(id)
                 .orElseThrow( () -> new NoSuchElementException("Not found task by id"));
@@ -97,18 +94,10 @@ public class TaskService {
         TaskEntity taskToStart = repository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Not found task by id"));
 
-        var update = new TaskEntity(
-                taskToStart.getId(),
-                taskToStart.getCreatorId(),
-                taskToStart.getAssignedUserId(),
-                TaskStatus.IN_PROGRESS,
-                taskToStart.getCreateDateTime(),
-                taskToStart.getDeadlineDate(),
-                null,
-                taskToStart.getTaskPriority()
-        );
+        taskToStart.setStatus(TaskStatus.IN_PROGRESS);
+        taskToStart.setDoneDateTime(null);
 
-        repository.save(update);
+        var update = repository.save(taskToStart);
         return entityToTask(update);
 
     }

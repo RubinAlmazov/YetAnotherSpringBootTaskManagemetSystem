@@ -14,27 +14,27 @@ public class TaskEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "creatorId")
+    @Column(name = "creatorId", nullable = false)
     private Long creatorId;
 
-    @Column(name = "assignedUserId")
+    @Column(name = "assignedUserId", nullable = false)
     private Long assignedUserId;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status")
+    @Column(name = "status", nullable = false)
     private TaskStatus status;
 
-    @Column(name = "createDateTime")
+    @Column(name = "createDateTime", nullable = false)
     private LocalDateTime createDateTime;
 
-    @Column(name = "deadlineDate")
+    @Column(name = "deadlineDate", nullable = false)
     private LocalDateTime deadlineDate;
 
     @Column(name = "doneDateTime")
     private LocalDateTime doneDateTime;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "taskPriority")
+    @Column(name = "taskPriority", nullable = false)
     private TaskPriority taskPriority;
 
     public TaskEntity() {}
