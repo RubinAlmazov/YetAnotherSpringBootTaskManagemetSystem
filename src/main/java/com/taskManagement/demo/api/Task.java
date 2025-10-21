@@ -1,7 +1,5 @@
-package com.taskManagement.demo;
+package com.taskManagement.demo.api;
 
-import com.taskManagement.demo.enums.TaskPriority;
-import com.taskManagement.demo.enums.TaskStatus;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;

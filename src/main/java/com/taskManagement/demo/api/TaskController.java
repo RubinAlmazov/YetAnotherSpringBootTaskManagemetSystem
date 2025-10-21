@@ -1,6 +1,5 @@
-package com.taskManagement.demo.controller;
+package com.taskManagement.demo.api;
 
-import com.taskManagement.demo.Task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;

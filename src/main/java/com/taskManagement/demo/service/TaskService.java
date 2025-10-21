@@ -1,9 +1,10 @@
 package com.taskManagement.demo.service;
 
-import com.taskManagement.demo.model.TaskEntity;
-import com.taskManagement.demo.dao.TaskRepository;
-import com.taskManagement.demo.Task;
-import com.taskManagement.demo.enums.TaskStatus;
+import com.taskManagement.demo.api.TaskMapper;
+import com.taskManagement.demo.db.TaskEntity;
+import com.taskManagement.demo.db.TaskRepository;
+import com.taskManagement.demo.api.Task;
+import com.taskManagement.demo.api.TaskStatus;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Service;
 
@@ -15,21 +16,22 @@ import java.util.NoSuchElementException;
 @Service
 public class TaskService {
     private final TaskRepository repository;
+    private final TaskMapper mapper;
 
-
-    public TaskService(TaskRepository repository) {
+    public TaskService(TaskRepository repository, TaskMapper mapper) {
         this.repository = repository;
+        this.mapper = mapper;
     }
 
     public Task getTaskByID(Long id) {
         TaskEntity entity = repository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Not found task by id"));
-        return entityToTask(entity);
+        return mapper.toTask(entity);
     }
 
     public List<Task> getAllTasks() {
         List<TaskEntity> listOfEntities = repository.findAll();
-        return listOfEntities.stream().map(this::entityToTask).toList();
+        return listOfEntities.stream().map(mapper::toTask).toList();
     }
 
     public Task createTask(@Valid Task taskToCreate) {
@@ -40,38 +42,24 @@ public class TaskService {
             throw new IllegalArgumentException("Status should be empty");
         }
 
-        var newTask = new TaskEntity(
-                null,
-                taskToCreate.creatorId(),
-                taskToCreate.assignedUserId(),
-                TaskStatus.CREATED,
-                taskToCreate.createDateTime(),
-                taskToCreate.deadlineDate(),
-                null,
-                taskToCreate.taskPriority()
-
-        );
+        var newTask = mapper.toEntity(taskToCreate);
+        newTask.setId(null);
+        newTask.setStatus(TaskStatus.CREATED);
+        newTask.setDoneDateTime(null);
         repository.save(newTask);
-        return entityToTask(newTask);
+        return mapper.toTask(newTask);
     }
 
     public Task updateTask(Long id, @Valid Task taskToUpdate) {
 
         TaskEntity entity = repository.findById(id)
                 .orElseThrow( () -> new NoSuchElementException("Not found task by id"));
-        var update = new TaskEntity(
-                entity.getId(),
-                taskToUpdate.creatorId(),
-                taskToUpdate.assignedUserId(),
-                taskToUpdate.status(),
-                taskToUpdate.createDateTime(),
-                taskToUpdate.deadlineDate(),
-                null,
-                taskToUpdate.taskPriority()
-        );
 
+        var update = mapper.toEntity(taskToUpdate);
+        update.setId(entity.getId());
+        update.setDoneDateTime(null);
         var updatedTask = repository.save(update);
-        return entityToTask(updatedTask);
+        return mapper.toTask(updatedTask);
     }
 
     public void deleteTask(Long id) {
@@ -98,37 +86,17 @@ public class TaskService {
         taskToStart.setDoneDateTime(null);
 
         var update = repository.save(taskToStart);
-        return entityToTask(update);
+        return mapper.toTask(update);
 
     }
 
     public Task completeTask(Long id) {
         TaskEntity taskToStart = repository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Not found task by id"));
-        var update = new TaskEntity(
-                taskToStart.getId(),
-                taskToStart.getCreatorId(),
-                taskToStart.getAssignedUserId(),
-                TaskStatus.IN_PROGRESS,
-                taskToStart.getCreateDateTime(),
-                taskToStart.getDeadlineDate(),
-                LocalDateTime.now(),
-                taskToStart.getTaskPriority()
-        );
-        repository.save(update);
-        return entityToTask(update);
-    }
 
-    public Task entityToTask(TaskEntity entity) {
-        return new Task(
-                entity.getId(),
-                entity.getCreatorId(),
-                entity.getAssignedUserId(),
-                entity.getStatus(),
-                entity.getCreateDateTime(),
-                entity.getDeadlineDate(),
-                LocalDateTime.now(),
-                entity.getTaskPriority()
-        );
+        taskToStart.setStatus(TaskStatus.DONE);
+        taskToStart.setDoneDateTime(LocalDateTime.now());
+        repository.save(taskToStart);
+        return mapper.toTask(taskToStart);
     }
 }

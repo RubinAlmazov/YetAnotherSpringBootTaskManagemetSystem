@@ -1,7 +1,7 @@
-package com.taskManagement.demo.model;
+package com.taskManagement.demo.db;
 
-import com.taskManagement.demo.enums.TaskPriority;
-import com.taskManagement.demo.enums.TaskStatus;
+import com.taskManagement.demo.api.TaskPriority;
+import com.taskManagement.demo.api.TaskStatus;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;

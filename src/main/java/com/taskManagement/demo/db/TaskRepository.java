@@ -1,6 +1,5 @@
-package com.taskManagement.demo.dao;
+package com.taskManagement.demo.db;
 
-import com.taskManagement.demo.model.TaskEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface TaskRepository extends JpaRepository<TaskEntity,Long> {

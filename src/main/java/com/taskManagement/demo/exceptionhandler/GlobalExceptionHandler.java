@@ -1,6 +1,5 @@
 package com.taskManagement.demo.exceptionhandler;
 
-import com.taskManagement.demo.ErrorResponseDto;
 import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,30 +43,20 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(exception = {
             IllegalArgumentException.class,
-            IllegalStateException.class
+            IllegalStateException.class,
+            MethodArgumentNotValidException.class
     })
     public ResponseEntity<ErrorResponseDto> argumentExceptionHandler(Exception e) {
         log.error("Handle illegal argument error");
 
         var error = new ErrorResponseDto(
-                "Illegal argument or state",
+                "Illegal argument",
                 e.getMessage(),
                 LocalDateTime.now()
         );
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponseDto> methodExceptionHandler(Exception e) {
-        log.error("Handle illegal method argument exception");
 
-        var error = new ErrorResponseDto(
-                "Illegal method argument",
-                e.getMessage(),
-                LocalDateTime.now()
-        );
-
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
-    }
 
 }
